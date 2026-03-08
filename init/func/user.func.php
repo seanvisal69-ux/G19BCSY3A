@@ -8,9 +8,9 @@ function createUser($name, $usernamne, $passwd, $photo)
         $imagePath = uploadImage($photo);
     }
     
-    $query = $db->prepare('INSERT INTO users (name, username, password, photo) VALUES (?, ?, ?, ?)');
+    $query = $db->prepare('INSERT INTO tbl_users (name, username, passwd, photo) VALUES (?, ?, ?, ?)');
     $query->bind_param('ssss', $name, $usernamne, $passwd, $imagePath);
-    return $query->execute();
+    $query->execute();
     if($db->affected_rows){
         return true;
     }
