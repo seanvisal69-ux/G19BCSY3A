@@ -1,8 +1,15 @@
 <?php
-$nameErr = $usernameErr = $passwdErr = $confirm_passwdErr = '';
-$name = $username = '';
+$id = $_GET["id"];
+$targetUser = readUser($id);
+if ($targetUser == null || $targetUser->Level == 'admin') {
+    header("Location: ./?page=user/list");
+}
 
-if (isset($_POST['name'], $_POST['username'], $_POST['passwd'])) {
+$nameErr = $usernameErr = $passwdErr = '';
+$name = $targetUser->name;
+$username = $targetUser->username;
+
+if (isset($_POST['name'], $_POST['username'], $_POST['passwd'], $_FILES['photo'])) {
     $photo = $_FILES['photo'];
     $name = trim($_POST['name']);
     $username = trim($_POST['username']);
@@ -16,24 +23,24 @@ if (isset($_POST['name'], $_POST['username'], $_POST['passwd'])) {
     if (empty($passwd)) {
         $passwdErr = 'please input password!';
     }
-    if (usernameExists($username)) {
+    if ($targetUser->username !== $username && usernameExists($username)) {
         $usernameErr = 'please choose another username !';
     }
     if (empty($nameErr) && empty($usernameErr) && empty($passwdErr)) {
         try {
-            if (createUser($name, $username, $passwd, $photo)) {
-                $name = $username = '';
-                echo '<div class="alert alert-success" role="alert">
-            Create successful! <a href="./?page=user/list">View list</a>
-            </div>';
-            } else {
-                echo '<div class="alert alert-danger" role="alert">
-            Create failed! Please try again.
-            </div>';
-            }
+            // if (updateUser($name, $username, $passwd, $photo)) {
+            //     $name = $username = '';
+            //     echo '<div class="alert alert-success" role="alert">
+            // Create successful! <a href="./?page=user/list">go to list</a>
+            // </div>';
+            // } else {
+            //     echo '<div class="alert alert-danger" role="alert">
+            // Create failed! Please try again.
+            // </div>';
+            // }
         } catch (Exception $e) {
             echo '<div class="alert alert-danger" role="alert">
-            Create failed! Please try again.
+            ' . $e->getMessage() . '
             </div>';
         }
     }
@@ -41,12 +48,14 @@ if (isset($_POST['name'], $_POST['username'], $_POST['passwd'])) {
 ?>
 
 
-<form method="post" action="./?page=user/create" enctype="multipart/form-data" class="col-md-10 col-lg-6 mx-auto">
-    <h3>Create User</h3>
+<form method="post" action="./?page=user/update&id=<?php echo $id ?>" enctype="multipart/form-data"
+    class="col-md-10 col-lg-6 mx-auto">
+    <h3>Update User</h3>
     <div class="d-flex justify-content-center">
         <input name="photo" type="file" id="profileUpload" hidden>
         <label role="button" for="profileUpload">
-            <img src="./assets/images/emptyuser.png" class="rounded img-thumbnail" style="max-width:200px">
+            <img src="<?php echo $targetUser->photo ?? './assets/image/images.png' ?>" class="rounded img-thumbnail"
+                style="max-width:200px">
         </label>
     </div>
     <div class="mb-3">

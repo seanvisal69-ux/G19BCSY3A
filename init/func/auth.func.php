@@ -154,3 +154,33 @@ function deleteUserImage()
     }
     return false;
 }
+function uploadImage($image)
+{
+    $img_name = $image['name'];
+    $img_size = $image['size'];
+    $tmp_name = $image['tmp_name'];
+    $error = $image['error'];
+
+    $dir = './assets/image/';
+
+    $allow_exs = ['jpg', 'png', 'jpeg'];
+    $image_ex = pathinfo($img_name, PATHINFO_EXTENSION);
+    $image_lowercase_ex = strtolower($image_ex);
+
+    if (!in_array($image_lowercase_ex, $allow_exs)) {
+        throw new Exception('File extension is not allowed!');
+    }
+
+    if ($error > 0) {
+        throw new Exception('Unknown error occurred!');
+    }
+
+    if ($img_size > 5000000) {
+        throw new Exception('File size is too large!');
+    }
+
+    $new_image_name = uniqid("Image") . '.' . $image_lowercase_ex;
+    $imagePath = $dir . $new_image_name;
+    move_uploaded_file($tmp_name, $imagePath);
+    return $imagePath;
+}
